@@ -9,9 +9,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.room.Room
+import com.example.app_pasteleria_mil_sabores.data.UsuarioDatabase
 import com.example.app_pasteleria_mil_sabores.ui.theme.APP_Pasteleria_mil_saboresTheme
+import com.example.app_pasteleria_mil_sabores.viewmodel.FormularioViewModel
+import com.example.app_pasteleria_mil_sabores.data.*
+import com.example.app_pasteleria_mil_sabores.ui.theme.screen.RegistroScreen
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,4 +52,24 @@ fun GreetingPreview() {
     APP_Pasteleria_mil_saboresTheme {
         Greeting("Android")
     }
+}
+
+@Composable
+fun FormularioApp(){
+    val context = LocalContext.current
+
+    val database = remember{
+        Room.databaseBuilder(
+            context,
+            UsuarioDatabase::class.java,
+            "usuarios.db"
+        ).build()
+    }
+    val viewModel = remember {
+        FormularioViewModel(database.usuarioDao())
+    }
+
+    RegistroScreen(viewModel = viewModel)
+
+
 }
