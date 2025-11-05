@@ -1,39 +1,49 @@
-
-
 package com.example.app_pasteleria_mil_sabores.ui.register
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.app_pasteleria_mil_sabores.data.UsuarioRepository
 import com.example.app_pasteleria_mil_sabores.model.Usuario
-import com.example.app_pasteleria_mil_sabores.data.UsuarioDao
 import kotlinx.coroutines.launch
 
-// El ViewModel necesita el DAO (Data Access Object) como dependencia para interactuar con la DB.
-// Se inyecta a través del constructor.
-class RegistroViewModel(private val usuarioDao: UsuarioDao) : ViewModel() {
+class RegistroViewModel(private val repository: UsuarioRepository) : ViewModel() {
 
-    /**
-     * Guarda un nuevo usuario en la base de datos de forma asíncrona.
-     * Es la función llamada desde RegistroScreen.kt.
-     * @param nombre El nombre ingresado por el usuario.
-     * @param contrasena La contraseña ingresada por el usuario.
-     */
-    fun registrarUsuario(nombre: String, contrasena: String) {
-        // Ejecutamos la inserción en el viewModelScope para Coroutines,
-        // asegurando que la operación de DB no bloquee la interfaz.
+    val nombre = MutableLiveData("")
+    val contrasena = MutableLiveData("")
+    val registroExitoso = MutableLiveData(false)
+    val mensajeError = MutableLiveData<String?>(null)
+
+
+    fun registrarUsuario() {
+        val nombreUsuario = nombre.value ?: ""
+        val contrasenaUsuario = contrasena.value ?: ""
+
+        if (nombreUsuario.isBlank() || contrasenaUsuario.isBlank()) {
+            mensajeError.value = "Por favor, complete ambos campos."
+            return
+        }
+
         viewModelScope.launch {
-            val nuevoUsuario = Usuario(
-                nombre = nombre,
-                contrasena = contrasena
-            )
-            // Llama a la función de inserción definida en el DAO.
-            usuarioDao.insert(nuevoUsuario)
+
+            val nuevoUsuario = Usuario(nombre = nombreUsuario, contrasena = contrasenaUsuario)
+
+
+            repository.registrarUsuario(nuevoUsuario)
+
+
+            nombre.value = ""
+            contrasena.value = ""
+            registroExitoso.value = true
         }
     }
 
-    /**
-     * Función que puedes añadir para verificar si un usuario ya existe.
-     * Por ahora, solo tenemos la función de registro.
-     */
-    // fun verificarUsuario(nombre: String, contrasena: String) { ... }
+
+    fun limpiarEstadoExito() {
+        registroExitoso.value = false
+    }
+
+    fun limpiarMensajes() {
+        mensajeError.value = null
+    }
 }

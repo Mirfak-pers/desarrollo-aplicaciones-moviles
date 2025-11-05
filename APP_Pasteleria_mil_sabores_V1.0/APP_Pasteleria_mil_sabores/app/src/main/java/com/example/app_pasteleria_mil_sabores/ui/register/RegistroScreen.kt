@@ -1,72 +1,87 @@
 package com.example.app_pasteleria_mil_sabores.ui.register
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf // Necesitas esta importación para mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue // Necesitas esta importación para la sintaxis 'by'
+import android.app.Application
+import android.widget.Toast
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.app_pasteleria_mil_sabores.ui.viewmodel.RegistroViewModel // Importa el ViewModel correcto
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.app_pasteleria_mil_sabores.viewmodel.AppViewModelFactory
 
 @Composable
-fun RegistroScreen(viewModel: RegistroViewModel){ // Usa el ViewModel para la lógica
+fun RegistroScreen(
 
-    // CORRECCIÓN: Usamos mutableStateOf para el estado de los campos de texto
-    // Esto resuelve el error de 'Property delegate must have getValue/setValue'
-    var nombre by remember { mutableStateOf("") }
-    var contrasena by remember { mutableStateOf("") }
+    application: Application,
+    onRegistroExitoso: () -> Unit
+) {
+    val factory = AppViewModelFactory(application)
+    val viewModel: RegistroViewModel = viewModel(factory = factory)
+
+    val nombre by viewModel.nombre.observeAsState("")
+    val contrasena by viewModel.contrasena.observeAsState("")
+
+    val registroExitoso by viewModel.registroExitoso.observeAsState(initial = false)
+    val mensajeError by viewModel.mensajeError.observeAsState()
+
+    val context = LocalContext.current
+
+
+    LaunchedEffect(mensajeError) {
+        if (mensajeError != null) {
+            Toast.makeText(context, mensajeError, Toast.LENGTH_LONG).show()
+            viewModel.limpiarMensajes()
+        }
+    }
+
+    LaunchedEffect(registroExitoso) {
+        if (registroExitoso) {
+            Toast.makeText(context, "Registro exitoso. Inicie sesión.", Toast.LENGTH_LONG).show()
+            onRegistroExitoso()
+            viewModel.limpiarEstadoExito()
+        }
+    }
 
     Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text("Registro de Usuario", style = MaterialTheme.typography.headlineLarge)
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Campo de Nombre
         OutlinedTextField(
             value = nombre,
-            onValueChange = { nombre = it },
-            label = {Text(text = "Ingrese nombre")},
+            onValueChange = { viewModel.nombre.value = it },
+            label = {Text(text = "Ingrese nombre de usuario")},
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
+        // Campo de Contraseña
         OutlinedTextField(
-            value = contrasena, // 'value' en minúscula
-            onValueChange = { contrasena = it },
+            value = contrasena,
+            onValueChange = { viewModel.contrasena.value = it },
             label = {Text(text = "Ingrese su contraseña")},
             modifier = Modifier.fillMaxWidth()
-
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = {
-                // Verificamos que ambos campos tengan texto
-                if(nombre.isNotBlank() && contrasena.isNotBlank()){
-                    // Llama al ViewModel para guardar los datos
-                    viewModel.registrarUsuario(nombre, contrasena)
-
-                    // Limpiamos los campos después del registro
-                    nombre = ""
-                    contrasena = ""
-                }
-            }, modifier = Modifier.fillMaxWidth()
+            onClick = { viewModel.registrarUsuario() },
+            modifier = Modifier.fillMaxWidth()
 
         ) {
-            Text(text = "Agregar usuario")
+            Text(text = "Registrar Usuario")
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
     }
 }
