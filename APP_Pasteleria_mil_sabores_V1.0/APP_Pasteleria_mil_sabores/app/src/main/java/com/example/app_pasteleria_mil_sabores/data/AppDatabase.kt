@@ -5,6 +5,6 @@ import androidx.room.RoomDatabase
 import com.example.app_pasteleria_mil_sabores.model.Usuario
 
 @Database(entities = [Usuario::class], version = 1)
-abstract class UsuarioDatabase : RoomDatabase(){
+abstract class AppDatabase : RoomDatabase(){
     abstract  class usuarioDao() : UsuarioDao
 }
