@@ -22,11 +22,9 @@ fun LoginScreen(
     onLoginExitoso: (Usuario) -> Unit,
     onIrARegistro: () -> Unit
 ) {
-    // 1. Obtener el ViewModel usando la Factory
     val factory = AppViewModelFactory(application)
     val viewModel: LoginViewModel = viewModel(factory = factory)
 
-    // 2. Observar los LiveData como estados
     val nombre by viewModel.nombre.observeAsState("")
     val contrasena by viewModel.contrasena.observeAsState("")
     val loginExitoso by viewModel.loginExitoso.observeAsState()
@@ -34,17 +32,13 @@ fun LoginScreen(
 
     val context = LocalContext.current
 
-    // IMPORTANTE: Observar cuando el login sea exitoso y navegar
     LaunchedEffect(loginExitoso) {
         loginExitoso?.let { usuario ->
-            // Guardar en SessionManager
             SessionManager.usuarioActual = usuario
-            // Navegar al catálogo
             onLoginExitoso(usuario)
         }
     }
 
-    // Mostrar mensajes de error como Toast
     LaunchedEffect(mensajeError) {
         mensajeError?.let { mensaje ->
             if (mensaje.isNotEmpty()) {
@@ -63,7 +57,6 @@ fun LoginScreen(
         Text("Iniciar Sesión", style = MaterialTheme.typography.headlineLarge)
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Campo de Nombre/Usuario
         OutlinedTextField(
             value = nombre,
             onValueChange = { viewModel.nombre.value = it },
@@ -80,7 +73,6 @@ fun LoginScreen(
         )
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Mostrar mensaje de error en pantalla (opcional, además del Toast)
         if (!mensajeError.isNullOrEmpty()) {
             Text(
                 text = mensajeError!!,
@@ -90,7 +82,6 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        // Botón de Iniciar Sesión
         Button(
             onClick = viewModel::iniciarSesion,
             modifier = Modifier.fillMaxWidth()
@@ -100,7 +91,6 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón para ir a la pantalla de Registro
         TextButton(onClick = onIrARegistro) {
             Text("¿No tienes cuenta? Regístrate aquí")
         }

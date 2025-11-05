@@ -6,7 +6,6 @@ import kotlinx.coroutines.delay
 
 class ProductoRepository {
 
-    // Lista real de productos basada en tu tabla (con precios ya ajustados a Double)
     private val stockProductos = listOf(
         Producto("TC001", "Tortas Cuadradas", "Torta Cuadrada de Chocolate", 45000.0),
         Producto("TC002", "Tortas Cuadradas", "Torta Cuadrada de Frutas", 50000.0),

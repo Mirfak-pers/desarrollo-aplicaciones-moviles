@@ -8,7 +8,6 @@ import com.example.app_pasteleria_mil_sabores.model.Usuario
 
 class PerfilViewModel : ViewModel() {
 
-    // LiveData que expone la información del usuario
     val usuarioLogueado = MutableLiveData<Usuario?>(null)
 
     init {

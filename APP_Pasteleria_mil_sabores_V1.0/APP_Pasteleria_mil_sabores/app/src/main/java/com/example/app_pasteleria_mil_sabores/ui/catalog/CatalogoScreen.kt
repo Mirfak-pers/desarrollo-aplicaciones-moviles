@@ -25,11 +25,9 @@ fun CatalogoScreen(
     application: Application,
     onIrAProfile: () -> Unit
 ) {
-    // 1. Obtener ViewModel
     val factory = AppViewModelFactory(application)
     val viewModel: CatalogoViewModel = viewModel(factory = factory)
 
-    // 2. Observar LiveData
     val productos by viewModel.listaProductos.observeAsState(emptyList())
     val isLoading by viewModel.isLoading.observeAsState(true)
 

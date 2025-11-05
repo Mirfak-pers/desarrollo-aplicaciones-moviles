@@ -42,15 +42,11 @@ fun AppNavHost(
     navController: NavHostController,
     application: Application
 ) {
-    // SIEMPRE inicia en LOGIN
-    // La navegación automática se maneja después
     NavHost(
         navController = navController,
         startDestination = Routes.LOGIN
     ) {
-        // --- RUTA: LOGIN ---
         composable(Routes.LOGIN) {
-            // Verifica si hay sesión activa al entrar a login
             LaunchedEffect(Unit) {
                 if (SessionManager.usuarioActual != null) {
                     navController.navigate(Routes.CATALOG) {
@@ -65,7 +61,6 @@ fun AppNavHost(
                     navController.navigate(Routes.REGISTER)
                 },
                 onLoginExitoso = { usuario ->
-                    // Asegúrate de guardar el usuario en SessionManager
                     SessionManager.usuarioActual = usuario
 
                     navController.navigate(Routes.CATALOG) {
@@ -75,7 +70,6 @@ fun AppNavHost(
             )
         }
 
-        // --- RUTA: REGISTRO ---
         composable(Routes.REGISTER) {
             RegistroScreen(
                 application = application,
@@ -87,9 +81,7 @@ fun AppNavHost(
             )
         }
 
-        // --- RUTA: CATÁLOGO ---
         composable(Routes.CATALOG) {
-            // Verifica que haya sesión activa
             LaunchedEffect(Unit) {
                 if (SessionManager.usuarioActual == null) {
                     navController.navigate(Routes.LOGIN) {
@@ -104,11 +96,9 @@ fun AppNavHost(
             )
         }
 
-        // --- RUTA: PERFIL ---
         composable(Routes.PROFILE) {
             PerfilScreen(
                 onCerrarSesion = {
-                    // IMPORTANTE: Limpiar la sesión
                     SessionManager.usuarioActual = null
 
                     navController.navigate(Routes.LOGIN) {
