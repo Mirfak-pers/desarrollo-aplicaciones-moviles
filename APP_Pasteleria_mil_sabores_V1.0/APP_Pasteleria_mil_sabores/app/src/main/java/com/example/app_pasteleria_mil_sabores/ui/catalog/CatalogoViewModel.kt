@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app_pasteleria_mil_sabores.data.ProductoRepository
+import com.example.app_pasteleria_mil_sabores.model.Producto
 import kotlinx.coroutines.launch
 
 class CatalogoViewModel(private val repository: ProductoRepository) : ViewModel() {
