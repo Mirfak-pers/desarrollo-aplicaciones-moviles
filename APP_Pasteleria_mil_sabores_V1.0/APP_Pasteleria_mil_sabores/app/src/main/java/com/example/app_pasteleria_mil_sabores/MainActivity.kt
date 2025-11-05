@@ -5,18 +5,18 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.app_pasteleria_mil_sabores.data.SessionManager // <-- Importar SessionManager
+import com.example.app_pasteleria_mil_sabores.data.SessionManager
 import com.example.app_pasteleria_mil_sabores.model.Usuario
 import com.example.app_pasteleria_mil_sabores.ui.catalog.CatalogoScreen
 import com.example.app_pasteleria_mil_sabores.ui.login.LoginScreen
 import com.example.app_pasteleria_mil_sabores.ui.profile.PerfilScreen
 import com.example.app_pasteleria_mil_sabores.ui.register.RegistroScreen
 import com.example.app_pasteleria_mil_sabores.ui.theme.AppPasteleriaMilSaboresTheme
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +30,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// Rutas simples como constantes
 private object Routes {
     const val LOGIN = "login"
     const val REGISTER = "register"
@@ -43,31 +42,32 @@ fun AppNavHost(
     navController: NavHostController,
     application: Application
 ) {
-    // Determina la pantalla inicial usando el SessionManager
-    val startDestination = if (SessionManager.usuarioActual != null) {
-        Routes.CATALOG
-    } else {
-        Routes.LOGIN
-    }
-
+    // SIEMPRE inicia en LOGIN
+    // La navegación automática se maneja después
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = Routes.LOGIN
     ) {
-        // --- RUTA: REGISTRO ---
-        composable(Routes.REGISTER) {
-            RegistroScreen(
-                application = application,
-                onRegistroExitoso = { navController.navigate(Routes.LOGIN) }
-            )
-        }
-
         // --- RUTA: LOGIN ---
         composable(Routes.LOGIN) {
+            // Verifica si hay sesión activa al entrar a login
+            LaunchedEffect(Unit) {
+                if (SessionManager.usuarioActual != null) {
+                    navController.navigate(Routes.CATALOG) {
+                        popUpTo(Routes.LOGIN) { inclusive = true }
+                    }
+                }
+            }
+
             LoginScreen(
                 application = application,
-                onIrARegistro = { navController.navigate(Routes.REGISTER) },
-                onLoginExitoso = { _: Usuario ->
+                onIrARegistro = {
+                    navController.navigate(Routes.REGISTER)
+                },
+                onLoginExitoso = { usuario ->
+                    // Asegúrate de guardar el usuario en SessionManager
+                    SessionManager.usuarioActual = usuario
+
                     navController.navigate(Routes.CATALOG) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
@@ -75,8 +75,29 @@ fun AppNavHost(
             )
         }
 
+        // --- RUTA: REGISTRO ---
+        composable(Routes.REGISTER) {
+            RegistroScreen(
+                application = application,
+                onRegistroExitoso = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.REGISTER) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         // --- RUTA: CATÁLOGO ---
         composable(Routes.CATALOG) {
+            // Verifica que haya sesión activa
+            LaunchedEffect(Unit) {
+                if (SessionManager.usuarioActual == null) {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                    }
+                }
+            }
+
             CatalogoScreen(
                 application = application,
                 onIrAProfile = { navController.navigate(Routes.PROFILE) }
@@ -86,14 +107,19 @@ fun AppNavHost(
         // --- RUTA: PERFIL ---
         composable(Routes.PROFILE) {
             PerfilScreen(
-                // Cerrar sesión
                 onCerrarSesion = {
+                    // IMPORTANTE: Limpiar la sesión
+                    SessionManager.usuarioActual = null
+
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(navController.graph.id) { inclusive = true }
                     }
                 },
-                // Ir a Login
-                onIrALogin = { navController.navigate(Routes.LOGIN) }
+                onIrALogin = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                    }
+                }
             )
         }
     }

@@ -1,6 +1,5 @@
 package com.example.app_pasteleria_mil_sabores.ui.login
 
-
 import android.app.Application
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
@@ -12,10 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.app_pasteleria_mil_sabores.data.SessionManager
 import com.example.app_pasteleria_mil_sabores.model.Usuario
 import com.example.app_pasteleria_mil_sabores.viewmodel.AppViewModelFactory
 import com.example.app_pasteleria_mil_sabores.ui.login.LoginViewModel
-
 
 @Composable
 fun LoginScreen(
@@ -35,7 +34,24 @@ fun LoginScreen(
 
     val context = LocalContext.current
 
+    // IMPORTANTE: Observar cuando el login sea exitoso y navegar
+    LaunchedEffect(loginExitoso) {
+        loginExitoso?.let { usuario ->
+            // Guardar en SessionManager
+            SessionManager.usuarioActual = usuario
+            // Navegar al catálogo
+            onLoginExitoso(usuario)
+        }
+    }
 
+    // Mostrar mensajes de error como Toast
+    LaunchedEffect(mensajeError) {
+        mensajeError?.let { mensaje ->
+            if (mensaje.isNotEmpty()) {
+                Toast.makeText(context, mensaje, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -63,6 +79,16 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(32.dp))
+
+        // Mostrar mensaje de error en pantalla (opcional, además del Toast)
+        if (!mensajeError.isNullOrEmpty()) {
+            Text(
+                text = mensajeError!!,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         // Botón de Iniciar Sesión
         Button(
