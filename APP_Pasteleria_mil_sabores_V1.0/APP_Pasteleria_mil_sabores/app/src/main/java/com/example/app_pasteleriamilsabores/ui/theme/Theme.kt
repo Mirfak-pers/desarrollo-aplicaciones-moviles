@@ -1,4 +1,4 @@
-package com.example.app_pasteleria_mil_sabores.ui.theme
+package com.example.app_pasteleriamilsabores.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -34,7 +34,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun APP_Pasteleria_mil_saboresTheme(
+fun App_PasteleriaMilSaboresTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,

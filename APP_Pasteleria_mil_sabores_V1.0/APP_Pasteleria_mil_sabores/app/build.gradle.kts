@@ -51,13 +51,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    //Room dependencies (Agregadas directamente)
-    implementation("androidx.room:room-runtime:2.8.3")
-    implementation("androidx.room:room-ktx:2.8.3")
-    implementation(libs.play.services.cast.framework)
-    kapt("androidx.room:room-compiler:2.8.3")
-    implementation("androidx.navigation:navigation-compose:2.9.5")
-    implementation("androidx.compose.runtime:runtime-livedata:1.9.4")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -65,4 +58,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    //Room dependencies (Agregadas directamente)
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("andoridx.room:room-ktx:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
 }
