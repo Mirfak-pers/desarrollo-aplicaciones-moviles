@@ -1,0 +1,134 @@
+package com.example.pasteleriamilsabores
+
+
+import androidx.compose.ui.test.*
+import androidx.compose.ui.test.junit4.createComposeRule
+import com.example.pasteleriamilsabores.data.repository.Repository
+import com.example.pasteleriamilsabores.ui.screens.LoginScreen
+import com.example.pasteleriamilsabores.ui.theme.PasteleriaMilSabores
+import com.example.pasteleriamilsabores.viewmodel.AuthViewModel
+import io.mockk.mockk
+import org.junit.Rule
+import org.junit.Test
+
+class LoginScreenTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
+    @Test
+    fun loginScreen_displaysAllElements() {
+        // Given
+        val repository: Repository = mockk(relaxed = true)
+        val viewModel = AuthViewModel(repository)
+
+        // When
+        composeTestRule.setContent {
+            PasteleriaMilSabores {
+                LoginScreen(
+                    viewModel = viewModel,
+                    onNavigateToRegister = {},
+                    onLoginSuccess = {}
+                )
+            }
+        }
+
+        // Then
+        composeTestRule.onNodeWithText("Iniciar Sesión").assertExists()
+        composeTestRule.onNodeWithText("Email").assertExists()
+        composeTestRule.onNodeWithText("Contraseña").assertExists()
+        composeTestRule.onNodeWithText("¿No tienes cuenta? Regístrate").assertExists()
+    }
+
+    @Test
+    fun loginScreen_emailInput_acceptsText() {
+        // Given
+        val repository: Repository = mockk(relaxed = true)
+        val viewModel = AuthViewModel(repository)
+
+        composeTestRule.setContent {
+            PasteleriaMilSabores {
+                LoginScreen(
+                    viewModel = viewModel,
+                    onNavigateToRegister = {},
+                    onLoginSuccess = {}
+                )
+            }
+        }
+
+        // When
+        composeTestRule.onNodeWithText("Email").performTextInput("test@test.com")
+
+        // Then
+        composeTestRule.onNodeWithText("test@test.com").assertExists()
+    }
+
+    @Test
+    fun loginScreen_passwordInput_acceptsText() {
+        // Given
+        val repository: Repository = mockk(relaxed = true)
+        val viewModel = AuthViewModel(repository)
+
+        composeTestRule.setContent {
+            PasteleriaMilSabores {
+                LoginScreen(
+                    viewModel = viewModel,
+                    onNavigateToRegister = {},
+                    onLoginSuccess = {}
+                )
+            }
+        }
+
+        // When
+        composeTestRule.onNodeWithText("Contraseña").performTextInput("password123")
+
+        // Then - La contraseña está oculta, pero el campo existe
+        composeTestRule.onNodeWithText("Contraseña").assertExists()
+    }
+
+    @Test
+    fun loginScreen_loginButton_isClickable() {
+        // Given
+        val repository: Repository = mockk(relaxed = true)
+        val viewModel = AuthViewModel(repository)
+
+        composeTestRule.setContent {
+            PasteleriaMilSabores {
+                LoginScreen(
+                    viewModel = viewModel,
+                    onNavigateToRegister = {},
+                    onLoginSuccess = {}
+                )
+            }
+        }
+
+        // When & Then
+        composeTestRule.onNodeWithText("Iniciar Sesión")
+            .assertIsEnabled()
+            .assertHasClickAction()
+    }
+
+    @Test
+    fun loginScreen_registerButton_isClickable() {
+        // Given
+        val repository: Repository = mockk(relaxed = true)
+        val viewModel = AuthViewModel(repository)
+        var registerClicked = false
+
+        composeTestRule.setContent {
+            PasteleriaMilSabores {
+                LoginScreen(
+                    viewModel = viewModel,
+                    onNavigateToRegister = { registerClicked = true },
+                    onLoginSuccess = {}
+                )
+            }
+        }
+
+        // When
+        composeTestRule.onNodeWithText("¿No tienes cuenta? Regístrate").performClick()
+
+        // Then
+        assert(registerClicked)
+    }
+}
