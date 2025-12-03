@@ -11,7 +11,7 @@ import com.example.pasteleriamilsabores.data.model.User
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
-        private const val DATABASE_NAME = "ecommerce.db"
+        private const val DATABASE_NAME = "pasteleriamilsabores.db"
         private const val DATABASE_VERSION = 1
 
         // Tables

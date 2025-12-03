@@ -7,22 +7,23 @@ import com.example.pasteleriamilsabores.data.model.User
 import com.example.pasteleriamilsabores.data.remote.ApiService
 import com.example.pasteleriamilsabores.data.repository.Repository
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
-import org.junit.Before
-import org.junit.Test
-import org.junit.Assert.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.DisplayName
 
+@DisplayName("Repository Tests")
 class RepositoryTest {
 
     private lateinit var db: DatabaseHelper
     private lateinit var api: ApiService
     private lateinit var repository: Repository
 
-    @Before
+    @BeforeEach
     fun setup() {
         db = mockk()
         api = mockk()
@@ -30,7 +31,8 @@ class RepositoryTest {
     }
 
     @Test
-    fun `login debe retornar usuario cuando las credenciales son correctas`() = runTest {
+    @DisplayName("login debe retornar usuario cuando las credenciales son correctas")
+    fun login_withCorrectCredentials_shouldReturnUser() = runTest {
         // Given
         val expectedUser = User(1, "test@test.com", "Test User")
         every { db.getUser("test@test.com", "password") } returns expectedUser
@@ -44,7 +46,8 @@ class RepositoryTest {
     }
 
     @Test
-    fun `register debe retornar el ID del nuevo usuario`() = runTest {
+    @DisplayName("register debe retornar el ID del nuevo usuario")
+    fun register_shouldReturnNewUserId() = runTest {
         // Given
         every { db.insertUser(any(), any(), any(), any()) } returns 1L
 
@@ -57,7 +60,8 @@ class RepositoryTest {
     }
 
     @Test
-    fun `getAllProducts debe retornar lista de productos`() = runTest {
+    @DisplayName("getAllProducts debe retornar lista de productos")
+    fun getAllProducts_shouldReturnProductList() = runTest {
         // Given
         val products = listOf(
             Product(1, "Product 1", 10.0),
@@ -74,7 +78,8 @@ class RepositoryTest {
     }
 
     @Test
-    fun `addProduct debe retornar el ID del nuevo producto`() = runTest {
+    @DisplayName("addProduct debe retornar el ID del nuevo producto")
+    fun addProduct_shouldReturnNewProductId() = runTest {
         // Given
         every { db.insertProduct(any(), any(), any(), any(), any()) } returns 1L
 
@@ -87,7 +92,8 @@ class RepositoryTest {
     }
 
     @Test
-    fun `updateProduct debe retornar true cuando la actualización es exitosa`() = runTest {
+    @DisplayName("updateProduct debe retornar true cuando la actualización es exitosa")
+    fun updateProduct_whenSuccessful_shouldReturnTrue() = runTest {
         // Given
         every { db.updateProduct(any(), any(), any(), any(), any()) } returns 1
 
@@ -100,7 +106,8 @@ class RepositoryTest {
     }
 
     @Test
-    fun `deleteProduct debe retornar true cuando la eliminación es exitosa`() = runTest {
+    @DisplayName("deleteProduct debe retornar true cuando la eliminación es exitosa")
+    fun deleteProduct_whenSuccessful_shouldReturnTrue() = runTest {
         // Given
         every { db.deleteProduct(1L) } returns 1
 
@@ -113,7 +120,8 @@ class RepositoryTest {
     }
 
     @Test
-    fun `addToCart debe retornar el ID del item agregado`() = runTest {
+    @DisplayName("addToCart debe retornar el ID del item agregado")
+    fun addToCart_shouldReturnCartItemId() = runTest {
         // Given
         every { db.addToCart(any(), any(), any()) } returns 1L
 

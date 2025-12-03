@@ -10,36 +10,38 @@ import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-import org.junit.Assert.*
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.DisplayName
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@DisplayName("ProductViewModel Tests")
 class ProductViewModelTest {
 
     private lateinit var repository: Repository
     private lateinit var viewModel: ProductViewModel
     private val testDispatcher = StandardTestDispatcher()
 
-    @Before
+    @BeforeEach
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         repository = mockk()
 
-        // Mock inicial para el constructor
         coEvery { repository.getAllProducts() } returns emptyList()
 
         viewModel = ProductViewModel(repository)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         Dispatchers.resetMain()
     }
 
     @Test
-    fun `loadProducts debe actualizar la lista de productos`() = runTest {
+    @DisplayName("loadProducts debe actualizar la lista de productos")
+    fun loadProducts_shouldUpdateProductList() = runTest {
         // Given
         val expectedProducts = listOf(
             Product(1, "Producto 1", 10.0, "Desc 1"),
@@ -57,7 +59,8 @@ class ProductViewModelTest {
     }
 
     @Test
-    fun `addProduct con título vacío debe retornar error`() = runTest {
+    @DisplayName("addProduct con título vacío debe retornar error")
+    fun addProduct_withEmptyTitle_shouldReturnError() = runTest {
         // When
         viewModel.addProduct("", "10.0", "Descripción", "image.jpg", 1L)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -69,7 +72,8 @@ class ProductViewModelTest {
     }
 
     @Test
-    fun `addProduct con precio inválido debe retornar error`() = runTest {
+    @DisplayName("addProduct con precio inválido debe retornar error")
+    fun addProduct_withInvalidPrice_shouldReturnError() = runTest {
         // When
         viewModel.addProduct("Producto", "abc", "Descripción", "image.jpg", 1L)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -81,7 +85,8 @@ class ProductViewModelTest {
     }
 
     @Test
-    fun `addProduct con datos válidos debe llamar al repositorio`() = runTest {
+    @DisplayName("addProduct con datos válidos debe llamar al repositorio")
+    fun addProduct_withValidData_shouldCallRepository() = runTest {
         // Given
         coEvery { repository.addProduct(any(), any(), any(), any(), any()) } returns 1L
         coEvery { repository.getAllProducts() } returns emptyList()
@@ -95,7 +100,8 @@ class ProductViewModelTest {
     }
 
     @Test
-    fun `deleteProduct debe llamar al repositorio y recargar productos`() = runTest {
+    @DisplayName("deleteProduct debe llamar al repositorio y recargar productos")
+    fun deleteProduct_shouldCallRepositoryAndReloadProducts() = runTest {
         // Given
         coEvery { repository.deleteProduct(1L) } returns true
         coEvery { repository.getAllProducts() } returns emptyList()
@@ -110,7 +116,8 @@ class ProductViewModelTest {
     }
 
     @Test
-    fun `loadProductsFromApi debe actualizar productos desde la API`() = runTest {
+    @DisplayName("loadProductsFromApi debe actualizar productos desde la API")
+    fun loadProductsFromApi_shouldUpdateProductsFromApi() = runTest {
         // Given
         val apiProducts = listOf(
             Product(1, "API Product", 15.0, "From API")
@@ -127,7 +134,8 @@ class ProductViewModelTest {
     }
 
     @Test
-    fun `loadProductsFromApi con error debe actualizar estado a Error`() = runTest {
+    @DisplayName("loadProductsFromApi con error debe actualizar estado a Error")
+    fun loadProductsFromApi_withError_shouldUpdateStateToError() = runTest {
         // Given
         coEvery { repository.fetchProductsFromApi() } throws Exception("Network error")
 
@@ -137,5 +145,20 @@ class ProductViewModelTest {
 
         // Then
         assertTrue(viewModel.productState.value is ProductViewModel.ProductState.Error)
+    }
+
+    @Test
+    @DisplayName("updateProduct con datos válidos debe actualizar el producto")
+    fun updateProduct_withValidData_shouldUpdateProduct() = runTest {
+        // Given
+        coEvery { repository.updateProduct(any(), any(), any(), any(), any()) } returns true
+        coEvery { repository.getAllProducts() } returns emptyList()
+
+        // When
+        viewModel.updateProduct(1L, "Updated", "25.0", "New desc", "new.jpg")
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Then
+        coVerify { repository.updateProduct(1L, "Updated", 25.0, "New desc", "new.jpg") }
     }
 }
