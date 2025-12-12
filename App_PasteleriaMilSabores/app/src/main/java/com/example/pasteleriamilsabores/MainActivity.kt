@@ -8,11 +8,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavType
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.example.pasteleriamilsabores.data.local.DatabaseHelper
 import com.example.pasteleriamilsabores.data.model.Product
 import com.example.pasteleriamilsabores.data.remote.ApiService
@@ -24,6 +24,8 @@ import com.example.pasteleriamilsabores.viewmodel.CartViewModel
 import com.example.pasteleriamilsabores.viewmodel.ProductViewModel
 
 class MainActivity : ComponentActivity() {
+    private lateinit var viewModelFactory: ViewModelFactory
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -31,9 +33,7 @@ class MainActivity : ComponentActivity() {
         val api = ApiService.create()
         val repository = Repository(db, api)
 
-        val authViewModel = AuthViewModel(repository)
-        val productViewModel = ProductViewModel(repository)
-        val cartViewModel = CartViewModel(repository)
+        viewModelFactory = ViewModelFactory(repository)
 
         setContent {
             PasteleriaMilSabores {
@@ -41,6 +41,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    val authViewModel: AuthViewModel = viewModel(factory = viewModelFactory)
+                    val productViewModel: ProductViewModel = viewModel(factory = viewModelFactory)
+                    val cartViewModel: CartViewModel = viewModel(factory = viewModelFactory)
+
                     AppNavigation(authViewModel, productViewModel, cartViewModel)
                 }
             }
@@ -95,7 +99,7 @@ fun AppNavigation(
                     navController.navigate("edit_product")
                 },
                 onNavigateToCart = { navController.navigate("cart") },
-                onNavigateToProfile = { navController.navigate("profile") } // NUEVO
+                onNavigateToProfile = { navController.navigate("profile") }
             )
         }
 

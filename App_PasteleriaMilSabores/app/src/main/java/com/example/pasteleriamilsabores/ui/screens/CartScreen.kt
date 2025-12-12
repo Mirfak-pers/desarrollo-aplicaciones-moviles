@@ -1,14 +1,22 @@
 package com.example.pasteleriamilsabores.ui.screens
 
-
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.example.pasteleriamilsabores.data.model.CartItem
+import com.example.pasteleriamilsabores.utils.ImageUtils
 import com.example.pasteleriamilsabores.viewmodel.AuthViewModel
 import com.example.pasteleriamilsabores.viewmodel.CartViewModel
 
@@ -84,6 +92,8 @@ fun CartItemCard(
     item: CartItem,
     onRemove: () -> Unit
 ) {
+    val context = LocalContext.current
+
     Card(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -91,12 +101,44 @@ fun CartItemCard(
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            // Imagen del producto
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                val imageModel = ImageUtils.getImageUri(context, item.product.image)
+
+                if (imageModel != null) {
+                    Image(
+                        painter = rememberAsyncImagePainter(imageModel),
+                        contentDescription = item.product.title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Text(
+                        text = "🍰",
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = item.product.title, style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(text = "Cantidad: ${item.quantity}")
-                Text(text = "$${item.product.price * item.quantity}")
+                Text(
+                    text = "$${String.format("%.2f", item.product.price * item.quantity)}",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
+
             OutlinedButton(onClick = onRemove) {
                 Text("Eliminar")
             }

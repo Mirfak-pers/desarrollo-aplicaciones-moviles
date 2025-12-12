@@ -12,7 +12,8 @@ data class Product(
     val title: String,
     val price: Double,
     val description: String? = null,
-    val image: String? = null
+    val image: String? = null,  // Ahora guardará la ruta local del archivo
+    val isPreloaded: Boolean = false  // Para identificar productos precargados
 )
 
 data class CartItem(

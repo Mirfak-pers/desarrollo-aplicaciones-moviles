@@ -4,11 +4,16 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.example.pasteleriamilsabores.viewmodel.AuthViewModel
 
@@ -22,6 +27,7 @@ fun RegisterScreen(
     var password by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
+    var acceptedTerms by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
@@ -53,6 +59,7 @@ fun RegisterScreen(
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 32.dp)
         )
+
         AnimatedVisibility(
             visible = showError,
             enter = fadeIn(),
@@ -111,13 +118,71 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // Checkbox de Términos y Condiciones
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = acceptedTerms,
+                onCheckedChange = { acceptedTerms = it }
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            val annotatedText = buildAnnotatedString {
+                append("Acepto los ")
+
+                pushStringAnnotation(
+                    tag = "terms",
+                    annotation = "terms"
+                )
+                withStyle(
+                    style = SpanStyle(
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline
+                    )
+                ) {
+                    append("términos y condiciones")
+                }
+                pop()
+            }
+
+            ClickableText(
+                text = annotatedText,
+                onClick = { offset ->
+                    annotatedText.getStringAnnotations(
+                        tag = "terms",
+                        start = offset,
+                        end = offset
+                    ).firstOrNull()?.let {
+                        // Aquí podrías agregar navegación a términos en el futuro
+                        // Por ahora no hace nada
+                    }
+                },
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
         Button(
-            onClick = { viewModel.register(email, password, name, phone.ifBlank { null }) },
+            onClick = {
+                if (acceptedTerms) {
+                    viewModel.register(email, password, name, phone.ifBlank { null })
+                } else {
+                    errorMessage = "Debes aceptar los términos y condiciones"
+                    showError = true
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
             enabled = loginState !is AuthViewModel.LoginState.Loading
         ) {
             if (loginState is AuthViewModel.LoginState.Loading) {
-                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
             } else {
                 Text("Registrarse")
             }

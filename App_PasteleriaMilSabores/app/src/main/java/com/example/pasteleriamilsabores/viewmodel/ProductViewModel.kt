@@ -45,7 +45,7 @@ class ProductViewModel(private val repository: Repository) : ViewModel() {
         }
     }
 
-    fun addProduct(title: String, price: String, description: String, image: String, userId: Long) {
+    fun addProduct(title: String, price: String, description: String, image: String?, userId: Long) {
         if (title.isBlank()) {
             _productState.value = ProductState.Error("Título requerido")
             return
@@ -67,7 +67,7 @@ class ProductViewModel(private val repository: Repository) : ViewModel() {
         }
     }
 
-    fun updateProduct(id: Long, title: String, price: String, description: String, image: String) {
+    fun updateProduct(id: Long, title: String, price: String, description: String, image: String?) {
         if (title.isBlank()) {
             _productState.value = ProductState.Error("Título requerido")
             return

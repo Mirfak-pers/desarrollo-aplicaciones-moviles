@@ -82,6 +82,11 @@ dependencies {
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
+    // Coil para imágenes
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
     implementation(libs.androidx.ui.test.junit4.android)
 
     // ===== TESTS UNITARIOS (test/) - JUnit 5 =====
